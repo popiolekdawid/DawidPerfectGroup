@@ -18,7 +18,14 @@ export const Route = createFileRoute('/_app/albums/')({
     const previews = data.map(event => {
       const preview = event.photos[0]
       return new Promise<{ photo: string, eventID: string }>((resolve, reject) => {
-        supabase.storage.from("pieski_photos").createSignedUrl(preview.path, 20).then(response => {
+        supabase.storage.from("pieski_photos").createSignedUrl(preview.path, 20, {
+          transform: {
+            width: 600,
+            height: 600,
+            resize: "cover",
+            quality: 80
+          }
+        }).then(response => {
           if (response.data) {
             resolve({
               photo: response.data.signedUrl,
