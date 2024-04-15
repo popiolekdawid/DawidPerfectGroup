@@ -24,8 +24,8 @@ function RegisterPage() {
     setError
   } = useForm<Inputs>()
   const auth = useAuth()
+  const { supabase } = auth
   const registerHandler = useCallback(async (input: Inputs) => {
-    const { supabase } = auth
     const { error, data } = await supabase.auth.signUp({
       email: input.email,
       password: input.password,
@@ -41,7 +41,7 @@ function RegisterPage() {
       console.error(error)
     }
     console.log(data)
-  })
+  }, [supabase, setError])
 
   return (
     <div className="mx-auto grid w-[350px] gap-6">

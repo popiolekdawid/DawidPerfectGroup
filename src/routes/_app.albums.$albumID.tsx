@@ -24,6 +24,7 @@ function AlbumsAlbumID() {
   const params = Route.useParams()
   return (
     <>
+      {/* @ts-expect-error missing types*/}
       <Gallery images={photos} onClick={(ev) => {
         navigate({
           to: "/albums/$albumID/$photoID",

@@ -22,6 +22,7 @@ function UploadPage() {
   const [uploadID] = useState(() => nanoid(10))
   const { toast } = useToast()
   const context = Route.useRouteContext()
+  const { auth: { supabase } } = context
   const [uppy] = useState(() => new Uppy({
     locale: Polish,
     restrictions: {
@@ -49,19 +50,19 @@ function UploadPage() {
         type: file.type
       };
     });
-    uppy.on("upload", async (data) => {
-      await context.auth.supabase.from("events").upsert({
+    uppy.on("upload", async () => {
+      await supabase.from("events").upsert({
         id: uploadID,
       })
     })
     uppy.on('upload-success', async (file) => {
-      await context.auth.supabase.from("photos").upsert({
+      await supabase.from("photos").upsert({
         path: file?.meta.objectName as string,
         event_id: uploadID
       })
 
     })
-    uppy.on("complete", (result) => {
+    uppy.on("complete", () => {
       // uploaded files , save new album with files and reset uppy state 
       // should  also send some notifivation
       toast({
@@ -70,6 +71,6 @@ function UploadPage() {
       })
 
     })
-  }, [uppy])
+  }, [uppy, supabase, toast, uploadID])
   return <Dashboard width={"100%"} uppy={uppy} />
 }
