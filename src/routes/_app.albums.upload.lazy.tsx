@@ -51,11 +51,13 @@ function UploadPage() {
       };
     });
     uppy.on("upload", async () => {
+      if (!supabase) return
       await supabase.from("events").upsert({
         id: uploadID,
       })
     })
     uppy.on('upload-success', async (file) => {
+      if (!supabase) return
       await supabase.from("photos").upsert({
         path: file?.meta.objectName as string,
         event_id: uploadID

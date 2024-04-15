@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/lib/useAuth'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { createLazyFileRoute, getRouteApi, Link } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -16,17 +15,17 @@ interface Inputs {
   firstName: string
   lastName: string
 }
-
+const routeApi = getRouteApi('/_auth')
 function RegisterPage() {
   const {
     register,
     handleSubmit,
     setError
   } = useForm<Inputs>()
-  const auth = useAuth()
-  const { supabase } = auth
+  const { auth: { supabase } } = routeApi.useRouteContext()
   const registerHandler = useCallback(async (input: Inputs) => {
-    const { error, data } = await supabase.auth.signUp({
+    if (!supabase) return
+    const { error } = await supabase.auth.signUp({
       email: input.email,
       password: input.password,
       options: {
@@ -38,9 +37,7 @@ function RegisterPage() {
     })
     if (error) {
       setError("root", { type: "manual", message: "Coś poszło nie tak" })
-      console.error(error)
     }
-    console.log(data)
   }, [supabase, setError])
 
   return (

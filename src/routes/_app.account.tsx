@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/lib/useAuth';
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,6 +8,9 @@ import { useForm } from 'react-hook-form';
 export const Route = createFileRoute('/_app/account')({
   loader: async ({ context: { auth } }) => {
     const { supabase } = auth
+    if (!supabase) {
+      throw new Error('No supabase')
+    }
     const { data: profileData, error } = await supabase
       .from('profiles')
       .select('id, role, active,name,surname')
@@ -28,13 +30,14 @@ interface FormInputsAccount {
 
 function AccountPage() {
   const data = Route.useLoaderData()
-  const auth = useAuth()
+  const { auth } = Route.useRouteContext()
   const router = useRouter()
   const updateProfile = useCallback(async (data: FormInputsAccount) => {
     const userId = auth.session?.user.id
     if (!userId) {
       throw new Error('No user id')
     }
+    if (!auth.supabase) { return }
     const { error } = await auth.supabase
       .from('profiles')
       .update({

@@ -1,33 +1,28 @@
 import AppNavigation from '@/components/AppNavigation'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { createFileRoute, Outlet, redirect, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect, Outlet, useNavigate } from '@tanstack/react-router'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { CircleUser, Menu } from 'lucide-react'
-import { useAuth } from '@/lib/useAuth'
 
+import { globalStore as useGlobalStore } from '@/lib/global.store'
 
 export const Route = createFileRoute('/_app')({
-  component: AppLayout,
-  beforeLoad: async ({ location, context }) => {
-    if (!context.auth.isAuthenticated) {
-      throw redirect({
-        to: '/login',
-        search: {
-          returnTo: location.href
-        }
-      })
+  beforeLoad: async ({ context }) => {
+    if (!context.auth.session) {
+      throw redirect({ to: '/login' })
     }
   },
+  component: AppLayout,
 })
 
 
 function AppLayout() {
-  const { supabase } = useAuth()
-  const router = useRouter()
+  const navigate = useNavigate()
+  const supabase = useGlobalStore(state => state.auth.supabase)
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.invalidate()
+    await supabase?.auth.signOut()
+    await navigate({ to: '/login' })
   }
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">

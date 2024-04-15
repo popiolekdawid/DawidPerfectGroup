@@ -3,14 +3,16 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/albums/')({
   loader: async ({ context }) => {
-    const { data } = await context.auth.supabase.from('events').select('id, description, created_at, photos(path)')
+    const supabase = context.auth.supabase
+    if (!supabase) { return { events: [], previewPhotos: [] } }
+    const { data } = await supabase.from('events').select('id, description, created_at, photos(path)')
     if (!data) {
       return { events: [], previewPhotos: [] }
     }
     const previews = data.map(event => {
       const preview = event.photos[0]
       return new Promise<{ photo: string, eventID: string }>((resolve, reject) => {
-        context.auth.supabase.storage.from("pieski_photos").createSignedUrl(preview.path, 20).then(response => {
+        supabase.storage.from("pieski_photos").createSignedUrl(preview.path, 20).then(response => {
           if (response.data) {
             resolve({
               photo: response.data.signedUrl,

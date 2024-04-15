@@ -2,9 +2,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Globe } from 'lucide-react'
-import { createLazyFileRoute, Link } from '@tanstack/react-router'
+import { createLazyFileRoute, useNavigate, Link, getRouteApi } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
-import { useAuth } from '@/lib/useAuth'
 
 interface Inputs {
   email: string
@@ -15,17 +14,26 @@ export const Route = createLazyFileRoute('/_auth/login')({
   component: LoginPage
 })
 
+const routeApi = getRouteApi('/_auth')
+
 function LoginPage() {
+  const search = routeApi.useSearch()
+  const { auth: { supabase } } = routeApi.useRouteContext()
+  const navigate = useNavigate()
   const { register, handleSubmit } = useForm<Inputs>()
-  const { supabase } = useAuth()
   const handleLogin = async (data: Inputs) => {
+    if (!supabase) return
     const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     })
     if (error) {
-      console.error(error)
+      return
     }
+    await navigate({
+      to: search?.returnTo ? search.returnTo : '/albums',
+      replace: true
+    })
   }
   return (
     <div className="mx-auto grid w-[350px] gap-6">

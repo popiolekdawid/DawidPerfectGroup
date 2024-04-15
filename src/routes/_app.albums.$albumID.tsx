@@ -4,14 +4,16 @@ import { Gallery } from "react-grid-gallery";
 
 export const Route = createFileRoute('/_app/albums/$albumID')({
   loader: async ({ context, params }) => {
-    const { data } = await context.auth.supabase.
+    const supabase = context.auth.supabase
+    if (!supabase) { return { photos: [] } }
+    const { data } = await supabase.
       from('photos').
       select('path').
       eq('event_id', params.albumID)
     if (!data) {
       return { photos: [] }
     }
-    const { data: urls } = await context.auth.supabase.storage.from("pieski_photos")
+    const { data: urls } = await supabase.storage.from("pieski_photos")
       .createSignedUrls(data.map(photo => photo.path), 20)
     return { photos: urls?.map(u => ({ src: u.signedUrl, path: u.path })) ?? [] }
   },

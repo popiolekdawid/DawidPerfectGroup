@@ -1,11 +1,8 @@
-import { useAuth } from '@/lib/useAuth'
-import { createFileRoute, Outlet, redirect, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
 type AuthSearch = {
   returnTo?: string
 }
-let returnTo: string | undefined
 
 export const Route = createFileRoute('/_auth')({
   component: AuthLayout,
@@ -14,31 +11,16 @@ export const Route = createFileRoute('/_auth')({
       returnTo: typeof params.returnTo === 'string' ? params.returnTo : undefined
     }
   },
-  beforeLoad: ({ context, search }) => {
-    returnTo = search.returnTo
-    if (context.auth.isAuthenticated) {
+  beforeLoad: ({ context }) => {
+    if (context.auth.session) {
       throw redirect({
-        to: search?.returnTo ? decodeURIComponent(search.returnTo) : '/albums',
+        to: '/albums',
       })
     }
   },
 })
 
 function AuthLayout() {
-  const auth = useAuth()
-  const goto = useNavigate()
-  useEffect(() => {
-    const { data } = auth.supabase.auth.onAuthStateChange((_evt, session) => {
-      if (session) {
-        goto({
-          to: returnTo ? returnTo : '/albums',
-        })
-      }
-    })
-    return () => {
-      data.subscription.unsubscribe
-    }
-  }, [goto, auth])
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]" >
       <div className="flex items-center justify-center py-12">
