@@ -8,13 +8,9 @@
 
 ### Before login
 
-1. Main page with some basic info about the app
-2. Login screen -- 
-3. register -- > 
+3. register
+    after register page
 
 
 ### After login
-1. Photos listing
-2. Photos upload
-3. Account page -- editing data
-4. Waiting to accept user screen
+4. Waiting to accept user screen, not active user cannot have access 

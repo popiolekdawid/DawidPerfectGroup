@@ -20,6 +20,7 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 function UploadPage() {
   const [uploadID] = useState(() => nanoid(10))
+  const navigate = Route.useNavigate()
   const { toast } = useToast()
   const context = Route.useRouteContext()
   const { auth: { supabase } } = context
@@ -71,8 +72,10 @@ function UploadPage() {
         title: "Pełen sukces",
         description: "Pliki zostały przesłane",
       })
-
+      navigate({
+        to: '/albums'
+      })
     })
-  }, [uppy, supabase, toast, uploadID])
+  }, [uppy, supabase, toast, uploadID, navigate])
   return <Dashboard width={"100%"} uppy={uppy} />
 }

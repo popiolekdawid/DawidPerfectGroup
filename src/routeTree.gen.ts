@@ -26,6 +26,8 @@ import { Route as AppAlbumsAlbumIDPhotoIDImport } from './routes/_app.albums.$al
 const IndexLazyImport = createFileRoute('/')()
 const AuthRegisterLazyImport = createFileRoute('/_auth/register')()
 const AuthLoginLazyImport = createFileRoute('/_auth/login')()
+const AuthConfirmationLazyImport = createFileRoute('/_auth/confirmation')()
+const AuthActivationLazyImport = createFileRoute('/_auth/activation')()
 const AppAlbumsUploadLazyImport = createFileRoute('/_app/albums/upload')()
 
 // Create/Update Routes
@@ -56,6 +58,20 @@ const AuthLoginLazyRoute = AuthLoginLazyImport.update({
   path: '/login',
   getParentRoute: () => AuthRoute,
 } as any).lazy(() => import('./routes/_auth.login.lazy').then((d) => d.Route))
+
+const AuthConfirmationLazyRoute = AuthConfirmationLazyImport.update({
+  path: '/confirmation',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() =>
+  import('./routes/_auth.confirmation.lazy').then((d) => d.Route),
+)
+
+const AuthActivationLazyRoute = AuthActivationLazyImport.update({
+  path: '/activation',
+  getParentRoute: () => AuthRoute,
+} as any).lazy(() =>
+  import('./routes/_auth.activation.lazy').then((d) => d.Route),
+)
 
 const AppAccountRoute = AppAccountImport.update({
   path: '/account',
@@ -109,6 +125,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountImport
       parentRoute: typeof AppImport
     }
+    '/_auth/activation': {
+      preLoaderRoute: typeof AuthActivationLazyImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/confirmation': {
+      preLoaderRoute: typeof AuthConfirmationLazyImport
+      parentRoute: typeof AuthImport
+    }
     '/_auth/login': {
       preLoaderRoute: typeof AuthLoginLazyImport
       parentRoute: typeof AuthImport
@@ -150,7 +174,12 @@ export const routeTree = rootRoute.addChildren([
     AppAlbumsUploadLazyRoute,
     AppAlbumsIndexRoute,
   ]),
-  AuthRoute.addChildren([AuthLoginLazyRoute, AuthRegisterLazyRoute]),
+  AuthRoute.addChildren([
+    AuthActivationLazyRoute,
+    AuthConfirmationLazyRoute,
+    AuthLoginLazyRoute,
+    AuthRegisterLazyRoute,
+  ]),
 ])
 
 /* prettier-ignore-end */

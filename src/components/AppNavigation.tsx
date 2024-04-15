@@ -8,11 +8,11 @@ function ActiveBadge() {
   )
 }
 
-const pages: [string, string, JSX.Element][] = [
-  ['/albums', "Albumy", <Camera className="h-5 w-5" />],
-  ['/orders', "Zamówienia", <ShoppingCart className="h-5 w-5" />],
-  ['/setting', "Ustawienia", <Settings className="h-5 w-5" />],
-  ['/account', "Moje dane", <UserRound className="h-5 w-5" />]
+const pages: [string, string, JSX.Element, boolean][] = [
+  ['/albums', "Albumy", <Camera className="h-5 w-5" />, true],
+  ['/orders', "Zamówienia", <ShoppingCart className="h-5 w-5" />, false],
+  ['/setting', "Ustawienia", <Settings className="h-5 w-5" />, false],
+  ['/account', "Moje dane", <UserRound className="h-5 w-5" />, true]
 ] as const
 
 
@@ -23,6 +23,7 @@ export default function AppNavigation() {
         <Link
           key={page[0]}
           to={page[0]}
+          disabled={page[3] === false}
           className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-foreground hover:text-foreground"
           activeProps={{
             className: 'bg-muted',
