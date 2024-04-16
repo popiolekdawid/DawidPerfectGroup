@@ -10,6 +10,7 @@ import '@uppy/dashboard/dist/style.min.css';
 import { nanoid } from 'nanoid'
 import { useToast } from '@/components/ui/use-toast'
 import Compressor from '@uppy/compressor';
+import { bucket } from '@/lib/bucket'
 
 export const Route = createLazyFileRoute('/_app/albums/upload')({
   component: UploadPage
@@ -43,7 +44,7 @@ function UploadPage() {
   useEffect(() => {
     uppy.on('file-added', (file) => {
       file.meta = {
-        bucketName: 'pieski_photos',
+        bucketName: bucket,
         objectName: `${uploadID}/${file.name}`,
         contentType: file.type,
         cacheControl: 'public, max-age=31536000',

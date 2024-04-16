@@ -5,12 +5,13 @@ import "yet-another-react-lightbox/styles.css";
 import Lightbox from "yet-another-react-lightbox";
 import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { bucket } from '@/lib/bucket';
 
 export const Route = createFileRoute('/_app/albums/$albumID/$photoID')({
   component: AlbumsAlbumIDPhotoID,
   loader: async ({ context, params }) => {
     if (!context.auth.supabase) return []
-    const { data } = await context.auth.supabase.storage.from("pieski_photos")
+    const { data } = await context.auth.supabase.storage.from(bucket)
       .createSignedUrl(`${params.albumID}/${params.photoID}`, 20)
     if (!data) return []
     return [{ src: data.signedUrl }]

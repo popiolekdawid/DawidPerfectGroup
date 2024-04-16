@@ -1,6 +1,7 @@
 import ChangeTitle from '@/components/ChangingTitle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { bucket } from '@/lib/bucket'
 import { globalStore } from '@/lib/global.store'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
@@ -18,7 +19,7 @@ export const Route = createFileRoute('/_app/albums/')({
     const previews = data.map(event => {
       const preview = event.photos[0]
       return new Promise<{ photo: string, eventID: string }>((resolve, reject) => {
-        supabase.storage.from("pieski_photos").createSignedUrl(preview.path, 20, {
+        supabase.storage.from(bucket).createSignedUrl(preview.path, 20, {
           transform: {
             width: 600,
             height: 600,

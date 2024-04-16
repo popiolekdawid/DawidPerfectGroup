@@ -1,3 +1,4 @@
+import { bucket } from '@/lib/bucket';
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { Gallery } from "react-grid-gallery";
 
@@ -14,7 +15,7 @@ export const Route = createFileRoute('/_app/albums/$albumID')({
       return { photos: [] }
     }
     const urlsQueries = data.map(photo => new Promise<{ signedUrl: string, path: string }>((resolve, reject) => {
-      supabase.storage.from("pieski_photos").createSignedUrl(photo.path, 3600, {
+      supabase.storage.from(bucket).createSignedUrl(photo.path, 3600, {
         transform: {
           width: 500,
           height: 350,
