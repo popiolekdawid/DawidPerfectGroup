@@ -1,18 +1,29 @@
 import { bucket } from '@/lib/bucket';
+import { globalStore } from '@/lib/global.store';
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { Gallery } from "react-grid-gallery";
 
-
 export const Route = createFileRoute('/_app/albums/$albumID')({
   loader: async ({ context, params }) => {
+    let data = globalStore.getState().albumPhotos[params.albumID]
     const supabase = context.auth.supabase
     if (!supabase) { return { photos: [] } }
-    const { data } = await supabase.
-      from('photos').
-      select('path').
-      eq('event_id', params.albumID)
     if (!data) {
-      return { photos: [] }
+      const { data: loadData } = await supabase.
+        from('photos').
+        select('path').
+        eq('event_id', params.albumID)
+      if (!loadData) {
+        return { photos: [] }
+      }
+      globalStore.setState(state => ({
+        ...state,
+        albumPhotos: {
+          ...state.albumPhotos,
+          [params.albumID]: loadData
+        }
+      }))
+      data = loadData
     }
     const urlsQueries = data.map(photo => new Promise<{ signedUrl: string, path: string }>((resolve, reject) => {
       supabase.storage.from(bucket).createSignedUrl(photo.path, 3600, {
@@ -32,7 +43,17 @@ export const Route = createFileRoute('/_app/albums/$albumID')({
         reject('error')
       })
     }))
-    const urls = await Promise.all(urlsQueries)
+    let urls = globalStore.getState().albumCache[params.albumID]
+    if (!urls) {
+      urls = await Promise.all(urlsQueries)
+      globalStore.setState(state => ({
+        ...state,
+        albumCache: {
+          ...state.albumCache,
+          [params.albumID]: urls
+        }
+      }))
+    }
     return { photos: urls?.map(u => ({ src: u.signedUrl, path: u.path, width: 450, height: 350 })) ?? [] }
   },
   component: AlbumsAlbumID

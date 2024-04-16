@@ -11,6 +11,11 @@ interface GlobalStore {
   },
   setRole: (role: string | null) => void
   setSession: (session: Session | null) => void
+  albumPhotos: Record<string, { path: string }[] | undefined>
+  albumCache: Record<string, {
+    signedUrl: string;
+    path: string;
+  }[] | undefined>
 }
 
 export const globalStore = create<GlobalStore>()(
@@ -21,6 +26,8 @@ export const globalStore = create<GlobalStore>()(
         supabase: null,
         role: null
       },
+      albumPhotos: {},
+      albumCache: {},
       setRole: function(role: string | null) {
         set((state) => {
           state.auth.role = role
