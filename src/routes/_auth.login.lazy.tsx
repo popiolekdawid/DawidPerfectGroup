@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Globe } from 'lucide-react'
 import { createLazyFileRoute, useNavigate, Link, getRouteApi } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
+import { toast } from '@/components/ui/use-toast'
 
 interface Inputs {
   email: string
@@ -28,6 +29,11 @@ function LoginPage() {
       password: data.password,
     })
     if (error) {
+      toast({
+        title: "Błąd logowania",
+        description: "Mamy problem z logowaniem, spróbuj ponownie, może złe hasło ?",
+        className: 'bg-red-300 text-white'
+      })
       return
     }
     await navigate({

@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { createLazyFileRoute, getRouteApi, Link } from '@tanstack/react-router'
+import { toast } from '@/components/ui/use-toast'
+import { createLazyFileRoute, useNavigate, getRouteApi, Link } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -17,11 +18,12 @@ interface Inputs {
 }
 const routeApi = getRouteApi('/_auth')
 function RegisterPage() {
+  const navigate = useNavigate()
+  const form = useForm<Inputs>()
   const {
-    register,
     handleSubmit,
     setError
-  } = useForm<Inputs>()
+  } = form
   const { auth: { supabase } } = routeApi.useRouteContext()
   const registerHandler = useCallback(async (input: Inputs) => {
     if (!supabase) return
@@ -37,8 +39,16 @@ function RegisterPage() {
     })
     if (error) {
       setError("root", { type: "manual", message: "Coś poszło nie tak" })
+      toast({
+        title: "Błąd rejestracji",
+        description: "Sprawdź poprawność danych",
+        className: 'bg-red-300 text-white'
+      })
+      return
     }
-  }, [supabase, setError])
+    await navigate({ to: '/confirmation' })
+
+  }, [supabase, setError, navigate])
 
   return (
     <div className="mx-auto grid w-[350px] gap-6">
@@ -48,45 +58,67 @@ function RegisterPage() {
           Proszę podaj swoje dane, postaramy się zweryfikować twoje zgłoszenie jak najszybciej
         </p>
       </div>
-      <form onSubmit={handleSubmit(registerHandler)}>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="first-name">Twoje Imię</Label>
-            <Input {...register("firstName")} id="first-name" placeholder="Jan" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="last-name">Nazwisko</Label>
-            <Input {...register("lastName")} id="last-name" placeholder="Nowak" required />
-          </div>
-        </div>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              {...register("email")}
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Bezpieczne hasło</Label>
+      <Form {...form} >
+        <form onSubmit={handleSubmit(registerHandler)}>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <FormField name="firstName" control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Twoje Imię</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jan" required {...field} />
+                    </FormControl>
+                  </FormItem>
+                )} />
             </div>
-            <Input {...register("password")} id="password" type="password" required />
+            <div className="grid gap-2">
+              <FormField name="lastName" control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nazwisko</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Kowalski" required {...field} />
+                    </FormControl>
+                  </FormItem>
+                )} />
+            </div>
           </div>
-          <Button type="submit" className="w-full">
-            Zarejestruj się
-          </Button>
-        </div>
-      </form>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <FormField name="email" control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>adres email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="m@email.com" required type="email" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )} />
+            </div>
+            <div className="grid gap-2">
+              <FormField name="password" control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bezpieczne hasło</FormLabel>
+                    <FormControl>
+                      <Input required type="password" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )} />
+            </div>
+            <Button type="submit" className="w-full">
+              Zarejestruj się
+            </Button>
+          </div>
+        </form>
+      </Form>
       <div className="mt-4 text-center text-sm">
         Masz już konto?{" "}
         <Link to="/login" className="underline">
           Zaloguj się
         </Link>
       </div>
-    </div>
+    </div >
   )
 }

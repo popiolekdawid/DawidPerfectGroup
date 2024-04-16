@@ -13,9 +13,16 @@ export const Route = createFileRoute('/_auth')({
   },
   beforeLoad: ({ context }) => {
     if (context.auth.session) {
-      throw redirect({
-        to: '/albums',
-      })
+      if (context.auth.supabase) {
+        context.auth.supabase.from("profiles")
+          .select("active")
+          .eq("user_id", context.auth.session.user.id).single().then(({ data }) => {
+
+            throw redirect({
+              to: data?.active ? '/albums' : "/activation",
+            })
+          })
+      }
     }
   },
 })

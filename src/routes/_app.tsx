@@ -12,6 +12,15 @@ export const Route = createFileRoute('/_app')({
     if (!context.auth.session) {
       throw redirect({ to: '/login' })
     }
+    if (!context.auth.supabase) {
+      return
+    }
+    const { data } = await context.auth.supabase.from("profiles")
+      .select("active")
+      .eq("user_id", context.auth.session.user.id).single()
+    if (!data?.active) {
+      throw redirect({ to: '/activation' })
+    }
   },
   component: AppLayout,
 })

@@ -65,7 +65,7 @@ function AlbumsIndex() {
           <li key={event.id}>
             <Card className='w-full'>
               <CardHeader>
-                <CardTitle><ChangeTitle title={event.description ?? "Nowe wydarzenie"} onChange={(title) => {
+                <CardTitle><ChangeTitle canChange={role === 'uploader'} title={event.description ?? "Nowe wydarzenie"} onChange={(title) => {
                   handleNameChange(event.id, title)
                 }} /></CardTitle>
                 <CardDescription>{new Date(event.created_at).toLocaleDateString()}</CardDescription>

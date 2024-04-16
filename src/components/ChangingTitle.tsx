@@ -4,6 +4,7 @@ import { Input } from "./ui/input"
 
 interface ChangeTitleProps {
   title: string
+  canChange: boolean
   onChange?: (title: string) => void
 }
 
@@ -19,7 +20,7 @@ function ChangeTitle(props: ChangeTitleProps) {
   }
   if (!open) {
     return (
-      <div onClick={() => { setOpen(true) }}>
+      <div onClick={() => { setOpen(props.canChange && true) }}>
         {props.title}
       </div>
     )
