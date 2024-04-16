@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_app/albums/')({
     const supabase = context.auth.supabase
     if (!supabase) { return { events: [], previewPhotos: [] } }
     const { data } = await supabase.from('events')
-      .select('id, description, created_at, photos(path)')
+      .select('id, description, created_at, photos(path)').limit(1, { referencedTable: "photos" })
       .order("created_at", { ascending: false })
     if (!data) {
       return { events: [], previewPhotos: [] }
