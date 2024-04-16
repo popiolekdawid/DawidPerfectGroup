@@ -11,14 +11,15 @@ export const Route = createFileRoute('/_app/albums/')({
     const supabase = context.auth.supabase
     if (!supabase) { return { events: [], previewPhotos: [] } }
     const { data } = await supabase.from('events')
-      .select('id, description, created_at, photos(path)').limit(1, { referencedTable: "photos" })
+      .select('id, description, created_at, photos(path), counted:photos(count)').limit(1, { referencedTable: "photos" })
       .order("created_at", { ascending: false })
     if (!data) {
       return { events: [], previewPhotos: [] }
     }
     const previews = data.map(event => {
       const preview = event.photos[0]
-      return new Promise<{ photo: string, eventID: string }>((resolve, reject) => {
+      const photosCount = event.counted[0].count
+      return new Promise<{ photo: string, eventID: string, count: number }>((resolve, reject) => {
         supabase.storage.from(bucket).createSignedUrl(preview.path, 20, {
           transform: {
             width: 600,
@@ -30,7 +31,8 @@ export const Route = createFileRoute('/_app/albums/')({
           if (response.data) {
             resolve({
               photo: response.data.signedUrl,
-              eventID: event.id
+              eventID: event.id,
+              count: photosCount
             })
           }
           reject('error')
@@ -77,7 +79,7 @@ function AlbumsIndex() {
               <CardFooter>
                 <Link to={`/albums/$albumID`} params={{
                   albumID: event.id
-                }}>Zobacz {event.photos.length} zdjęć</Link>
+                }}>Zobacz {event.counted[0].count} zdjęć</Link>
               </CardFooter>
             </Card>
           </li>
