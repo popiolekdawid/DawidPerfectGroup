@@ -3,51 +3,66 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { bucket } from '@/lib/bucket'
 import { globalStore } from '@/lib/global.store'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
-export const Route = createFileRoute('/_app/albums/')({
-  loader: async ({ context }) => {
-    const supabase = context.auth.supabase
-    if (!supabase) { return { events: [], previewPhotos: [] } }
-    const { data } = await supabase.from('events')
-      .select('id, description, created_at, photos(path), counted:photos(count)').limit(1, { referencedTable: "photos" })
-      .order("created_at", { ascending: false })
-    if (!data) {
-      return { events: [], previewPhotos: [] }
-    }
-    const previews = data.map(event => {
-      const preview = event.photos[0]
-      const photosCount = event.counted[0].count
-      return new Promise<{ photo: string, eventID: string, count: number }>((resolve, reject) => {
-        supabase.storage.from(bucket).createSignedUrl(preview.path, 20, {
-          transform: {
-            width: 600,
-            height: 600,
-            resize: "cover",
-            quality: 80
-          }
-        }).then(response => {
-          if (response.data) {
-            resolve({
-              photo: response.data.signedUrl,
-              eventID: event.id,
-              count: photosCount
-            })
-          }
-          reject('error')
+
+const albumsIndexQuery = () => {
+  return queryOptions({
+    queryKey: ['albums'],
+    queryFn: async () => {
+      const supabase = globalStore.getState().auth.supabase
+      if (!supabase) {
+        throw new Error('no supabase')
+      }
+      const { data } = await supabase.from('events')
+        .select('id, description, created_at, photos(path), counted:photos(count)').limit(1, { referencedTable: "photos" })
+        .order("created_at", { ascending: false })
+      if (!data) {
+        return { events: [], previewPhotos: [] }
+      }
+      const previews = data.map(event => {
+        const preview = event.photos[0]
+        const photosCount = event.counted[0].count
+        return new Promise<{ photo: string, eventID: string, count: number }>((resolve, reject) => {
+          supabase.storage.from(bucket).createSignedUrl(preview.path, 60, {
+            transform: {
+              width: 600,
+              height: 600,
+              resize: "cover",
+              quality: 80
+            }
+          }).then(response => {
+            if (response.data) {
+              resolve({
+                photo: response.data.signedUrl,
+                eventID: event.id,
+                count: photosCount
+              })
+            }
+            reject('error')
+          })
         })
       })
-    })
-    const resolved = await Promise.all(previews)
-    return { events: data ?? [], previewPhotos: resolved }
+      const resolved = await Promise.all(previews)
+      return { events: data ?? [], previewPhotos: resolved }
+    }
+  })
+}
+
+
+export const Route = createFileRoute('/_app/albums/')({
+  loader: async ({ context }) => {
+    return context.queryClient.ensureQueryData(albumsIndexQuery())
   },
   component: AlbumsIndex
 })
 
 
 function AlbumsIndex() {
-  const { events, previewPhotos } = Route.useLoaderData()
+  const query = useSuspenseQuery(albumsIndexQuery())
+  const { events, previewPhotos } = query.data
   const router = useRouter()
   const supabase = globalStore(state => state.auth.supabase)
   const handleNameChange = useCallback(async (id: string, title: string) => {

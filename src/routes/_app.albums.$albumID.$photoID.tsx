@@ -6,16 +6,28 @@ import Lightbox from "yet-another-react-lightbox";
 import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { bucket } from '@/lib/bucket';
+import { queryOptions } from '@tanstack/react-query';
+import { globalStore } from '@/lib/global.store';
+
+
+const photosQuery = (albumID: string, photoID: string) => queryOptions({
+  queryKey: ['albums', albumID, photoID],
+  queryFn: async () => {
+    const supabase = globalStore.getState().auth.supabase;
+    if (!supabase) {
+      throw new Error('no supabase')
+    }
+    const { data } = await supabase.storage.from(bucket)
+      .createSignedUrl(`${albumID}/${photoID}`, 60)
+    if (!data) return []
+    return [{ src: data.signedUrl }]
+  }
+})
+
 
 export const Route = createFileRoute('/_app/albums/$albumID/$photoID')({
   component: AlbumsAlbumIDPhotoID,
-  loader: async ({ context, params }) => {
-    if (!context.auth.supabase) return []
-    const { data } = await context.auth.supabase.storage.from(bucket)
-      .createSignedUrl(`${params.albumID}/${params.photoID}`, 20)
-    if (!data) return []
-    return [{ src: data.signedUrl }]
-  },
+  loader: async ({ context, params }) => context.queryClient.ensureQueryData(photosQuery(params.albumID, params.photoID)),
 })
 
 function AlbumsAlbumIDPhotoID() {
@@ -31,7 +43,6 @@ function AlbumsAlbumIDPhotoID() {
     const prevPhoto = photos[prevIndex].path.split("/")[1]
     return { prevPhoto, nextPhoto }
   }, [photos, params.photoID])
-  console.log(data)
   const handleClose = () => {
     navigate({
       to: `/albums/$albumID`,
