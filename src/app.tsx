@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
 // Create a new router instance
 const router = createRouter({
   routeTree, context: {
-    auth: useGlobalStore.getState().auth,
+    auth: useGlobalStore.getState().auth ?? undefined!,
     queryClient: queryClient
   },
   defaultPendingComponent: () => (
