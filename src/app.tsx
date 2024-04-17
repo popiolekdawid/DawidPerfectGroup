@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import "./assets/index.css"
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 import { AuthProvider } from './lib/auth.provider'
@@ -45,7 +45,8 @@ declare module '@tanstack/react-router' {
 
 function InnerApp() {
   const auth = useGlobalStore(state => state.auth)
-  return <RouterProvider router={router} context={{ auth }} />
+  const queryClient = useQueryClient()
+  return <RouterProvider router={router} context={{ auth, queryClient }} />
 }
 
 // Render the app

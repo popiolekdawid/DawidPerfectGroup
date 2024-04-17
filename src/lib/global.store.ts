@@ -2,11 +2,12 @@ import { create } from 'zustand';
 import { persist } from "zustand/middleware"
 import type { Database } from './db.types';
 import type { Session, SupabaseClient } from '@supabase/supabase-js';
+import { getClient } from './supabase';
 
 interface GlobalStore {
   auth: {
     session: Session | null;
-    supabase: SupabaseClient<Database> | null;
+    supabase: SupabaseClient<Database>;
     role: string | null;
   },
   setRole: (role: string | null) => void
@@ -18,7 +19,7 @@ export const globalStore = create<GlobalStore>()(
     (set) => ({
       auth: {
         session: null,
-        supabase: null,
+        supabase: getClient(),
         role: null
       },
       setRole: function(role: string | null) {
