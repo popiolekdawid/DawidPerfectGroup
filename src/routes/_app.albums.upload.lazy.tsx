@@ -11,6 +11,7 @@ import { nanoid } from 'nanoid'
 import { useToast } from '@/components/ui/use-toast'
 import Compressor from '@uppy/compressor';
 import { bucket } from '@/lib/bucket'
+import { globalStore } from '@/lib/global.store'
 
 export const Route = createLazyFileRoute('/_app/albums/upload')({
   component: UploadPage
@@ -23,8 +24,8 @@ function UploadPage() {
   const [uploadID] = useState(() => nanoid(10))
   const navigate = Route.useNavigate()
   const { toast } = useToast()
-  const context = Route.useRouteContext()
-  const { auth: { supabase } } = context
+  const supabase = globalStore(state => state.auth.supabase)
+  const session = globalStore(state => state.auth.session)
   const [uppy] = useState(() => new Uppy({
     locale: Polish,
     restrictions: {
@@ -33,7 +34,7 @@ function UploadPage() {
   }).use(Tus, {
     endpoint: `${url}/storage/v1/upload/resumable`,
     headers: {
-      authorization: `Bearer ${context.auth.session?.access_token}`,
+      authorization: `Bearer ${session?.access_token}`,
       apikey: anonKey
     },
     uploadDataDuringCreation: true,

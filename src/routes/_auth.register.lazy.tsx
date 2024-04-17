@@ -2,7 +2,8 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
-import { createLazyFileRoute, useNavigate, getRouteApi, Link } from '@tanstack/react-router'
+import { globalStore } from '@/lib/global.store'
+import { createLazyFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -16,7 +17,6 @@ interface Inputs {
   firstName: string
   lastName: string
 }
-const routeApi = getRouteApi('/_auth')
 function RegisterPage() {
   const navigate = useNavigate()
   const form = useForm<Inputs>()
@@ -24,7 +24,7 @@ function RegisterPage() {
     handleSubmit,
     setError
   } = form
-  const { auth: { supabase } } = routeApi.useRouteContext()
+  const supabase = globalStore(state => state.auth.supabase)
   const registerHandler = useCallback(async (input: Inputs) => {
     if (!supabase) return
     const { error } = await supabase.auth.signUp({

@@ -5,6 +5,7 @@ import { Globe } from 'lucide-react'
 import { createLazyFileRoute, useNavigate, Link, getRouteApi } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from '@/components/ui/use-toast'
+import { globalStore } from '@/lib/global.store'
 
 interface Inputs {
   email: string
@@ -19,7 +20,7 @@ const routeApi = getRouteApi('/_auth')
 
 function LoginPage() {
   const search = routeApi.useSearch()
-  const { auth: { supabase } } = routeApi.useRouteContext()
+  const supabase = globalStore(state => state.auth.supabase)
   const navigate = useNavigate()
   const { register, handleSubmit } = useForm<Inputs>()
   const handleLogin = async (data: Inputs) => {

@@ -1,24 +1,36 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { globalStore } from '@/lib/global.store';
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 
+const profileQuery = () => {
+  return queryOptions({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { supabase } = globalStore.getState().auth
+      if (!supabase) {
+        throw new Error('No supabase')
+      }
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('id, role, active,name,surname')
+        .single();
+      if (error) {
+        console.log(error)
+      }
+      return profileData
+    }
+  })
+}
+
+
 export const Route = createFileRoute('/_app/account')({
-  loader: async ({ context: { auth } }) => {
-    const { supabase } = auth
-    if (!supabase) {
-      throw new Error('No supabase')
-    }
-    const { data: profileData, error } = await supabase
-      .from('profiles')
-      .select('id, role, active,name,surname')
-      .single();
-    if (error) {
-      console.log(error)
-    }
-    return profileData
+  loader: async ({ context }) => {
+    return context.queryClient.ensureQueryData(profileQuery())
   },
   component: AccountPage
 })
@@ -29,8 +41,9 @@ interface FormInputsAccount {
 }
 
 function AccountPage() {
-  const data = Route.useLoaderData()
-  const { auth } = Route.useRouteContext()
+  const query = useSuspenseQuery(profileQuery())
+  const data = query.data
+  const auth = globalStore(state => state.auth)
   const router = useRouter()
   const updateProfile = useCallback(async (data: FormInputsAccount) => {
     const userId = auth.session?.user.id
