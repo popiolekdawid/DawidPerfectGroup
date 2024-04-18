@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as PasswordImport } from './routes/password'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppAccountImport } from './routes/_app.account'
@@ -31,6 +32,11 @@ const AuthActivationLazyImport = createFileRoute('/_auth/activation')()
 const AppAlbumsUploadLazyImport = createFileRoute('/_app/albums/upload')()
 
 // Create/Update Routes
+
+const PasswordRoute = PasswordImport.update({
+  path: '/password',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthRoute = AuthImport.update({
   id: '/_auth',
@@ -121,6 +127,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
+    '/password': {
+      preLoaderRoute: typeof PasswordImport
+      parentRoute: typeof rootRoute
+    }
     '/_app/account': {
       preLoaderRoute: typeof AppAccountImport
       parentRoute: typeof AppImport
@@ -180,6 +190,7 @@ export const routeTree = rootRoute.addChildren([
     AuthLoginLazyRoute,
     AuthRegisterLazyRoute,
   ]),
+  PasswordRoute,
 ])
 
 /* prettier-ignore-end */

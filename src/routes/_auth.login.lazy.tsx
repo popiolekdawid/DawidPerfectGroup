@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Globe } from 'lucide-react'
+import { Globe, ShieldQuestion } from 'lucide-react'
 import { createLazyFileRoute, useNavigate, Link, getRouteApi } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { toast } from '@/components/ui/use-toast'
@@ -22,7 +22,8 @@ function LoginPage() {
   const search = routeApi.useSearch()
   const supabase = globalStore(state => state.auth.supabase)
   const navigate = useNavigate()
-  const { register, handleSubmit } = useForm<Inputs>()
+  const { register, handleSubmit, watch } = useForm<Inputs>()
+  const email = watch("email")
   const handleLogin = async (data: Inputs) => {
     if (!supabase) return
     const { error } = await supabase.auth.signInWithPassword({
@@ -72,6 +73,44 @@ function LoginPage() {
           </div>
           <Button type="submit" className="w-full">
             Login
+          </Button>
+          <Button type="button" onClick={async () => {
+            if (!email) {
+              toast({
+                title: "Błąd",
+                description: "Podaj email aby zresetować hasło",
+                className: 'bg-red-300 text-white'
+              })
+              return
+            }
+            const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            if (emailRegEx.test(email) === false) {
+              toast({
+                title: "Błąd",
+                description: "Podaj poprawny email",
+                className: 'bg-red-300 text-white'
+              })
+              return
+            }
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: `${window.location.origin}/password`
+            })
+            if (error) {
+              toast({
+                title: "Błąd",
+                description: "Może już wysłałeś prośbę o reset",
+                className: 'bg-red-300 text-white'
+              })
+              return
+            }
+            toast({
+              title: "Reset hasła",
+              description: "Sprawdź skrzynkę email",
+              className: 'bg-green-800 text-white'
+            })
+          }} variant="secondary" className="w-full">
+            <ShieldQuestion className="h-5 w-5 mr-2" />
+            Oj, nie pamiętam hasła
           </Button>
           <Button disabled variant="outline" className="w-full">
             <Globe className="h-5 w-5 mr-2" />
