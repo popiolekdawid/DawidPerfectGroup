@@ -30,6 +30,9 @@ const AuthLoginLazyImport = createFileRoute('/_auth/login')()
 const AuthConfirmationLazyImport = createFileRoute('/_auth/confirmation')()
 const AuthActivationLazyImport = createFileRoute('/_auth/activation')()
 const AppAlbumsUploadLazyImport = createFileRoute('/_app/albums/upload')()
+const AppAlbumsEditAlbumIDLazyImport = createFileRoute(
+  '/_app/albums/edit/$albumID',
+)()
 
 // Create/Update Routes
 
@@ -106,6 +109,13 @@ const AppAccountConfirmRoute = AppAccountConfirmImport.update({
   getParentRoute: () => AppAccountRoute,
 } as any)
 
+const AppAlbumsEditAlbumIDLazyRoute = AppAlbumsEditAlbumIDLazyImport.update({
+  path: '/albums/edit/$albumID',
+  getParentRoute: () => AppRoute,
+} as any).lazy(() =>
+  import('./routes/_app.albums.edit.$albumID.lazy').then((d) => d.Route),
+)
+
 const AppAlbumsAlbumIDPhotoIDRoute = AppAlbumsAlbumIDPhotoIDImport.update({
   path: '/$photoID',
   getParentRoute: () => AppAlbumsAlbumIDRoute,
@@ -116,81 +126,133 @@ const AppAlbumsAlbumIDPhotoIDRoute = AppAlbumsAlbumIDPhotoIDImport.update({
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
     '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
       preLoaderRoute: typeof AppImport
       parentRoute: typeof rootRoute
     }
     '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
     '/password': {
+      id: '/password'
+      path: '/password'
+      fullPath: '/password'
       preLoaderRoute: typeof PasswordImport
       parentRoute: typeof rootRoute
     }
     '/_app/account': {
+      id: '/_app/account'
+      path: '/account'
+      fullPath: '/account'
       preLoaderRoute: typeof AppAccountImport
       parentRoute: typeof AppImport
     }
     '/_auth/activation': {
+      id: '/_auth/activation'
+      path: '/activation'
+      fullPath: '/activation'
       preLoaderRoute: typeof AuthActivationLazyImport
       parentRoute: typeof AuthImport
     }
     '/_auth/confirmation': {
+      id: '/_auth/confirmation'
+      path: '/confirmation'
+      fullPath: '/confirmation'
       preLoaderRoute: typeof AuthConfirmationLazyImport
       parentRoute: typeof AuthImport
     }
     '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
       preLoaderRoute: typeof AuthLoginLazyImport
       parentRoute: typeof AuthImport
     }
     '/_auth/register': {
+      id: '/_auth/register'
+      path: '/register'
+      fullPath: '/register'
       preLoaderRoute: typeof AuthRegisterLazyImport
       parentRoute: typeof AuthImport
     }
     '/_app/account/confirm': {
+      id: '/_app/account/confirm'
+      path: '/confirm'
+      fullPath: '/account/confirm'
       preLoaderRoute: typeof AppAccountConfirmImport
       parentRoute: typeof AppAccountImport
     }
     '/_app/albums/$albumID': {
+      id: '/_app/albums/$albumID'
+      path: '/albums/$albumID'
+      fullPath: '/albums/$albumID'
       preLoaderRoute: typeof AppAlbumsAlbumIDImport
       parentRoute: typeof AppImport
     }
     '/_app/albums/upload': {
+      id: '/_app/albums/upload'
+      path: '/albums/upload'
+      fullPath: '/albums/upload'
       preLoaderRoute: typeof AppAlbumsUploadLazyImport
       parentRoute: typeof AppImport
     }
     '/_app/albums/': {
+      id: '/_app/albums/'
+      path: '/albums'
+      fullPath: '/albums'
       preLoaderRoute: typeof AppAlbumsIndexImport
       parentRoute: typeof AppImport
     }
     '/_app/albums/$albumID/$photoID': {
+      id: '/_app/albums/$albumID/$photoID'
+      path: '/$photoID'
+      fullPath: '/albums/$albumID/$photoID'
       preLoaderRoute: typeof AppAlbumsAlbumIDPhotoIDImport
       parentRoute: typeof AppAlbumsAlbumIDImport
+    }
+    '/_app/albums/edit/$albumID': {
+      id: '/_app/albums/edit/$albumID'
+      path: '/albums/edit/$albumID'
+      fullPath: '/albums/edit/$albumID'
+      preLoaderRoute: typeof AppAlbumsEditAlbumIDLazyImport
+      parentRoute: typeof AppImport
     }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
-  AppRoute.addChildren([
-    AppAccountRoute.addChildren([AppAccountConfirmRoute]),
-    AppAlbumsAlbumIDRoute.addChildren([AppAlbumsAlbumIDPhotoIDRoute]),
+  AppRoute: AppRoute.addChildren({
+    AppAccountRoute: AppAccountRoute.addChildren({ AppAccountConfirmRoute }),
+    AppAlbumsAlbumIDRoute: AppAlbumsAlbumIDRoute.addChildren({
+      AppAlbumsAlbumIDPhotoIDRoute,
+    }),
     AppAlbumsUploadLazyRoute,
     AppAlbumsIndexRoute,
-  ]),
-  AuthRoute.addChildren([
+    AppAlbumsEditAlbumIDLazyRoute,
+  }),
+  AuthRoute: AuthRoute.addChildren({
     AuthActivationLazyRoute,
     AuthConfirmationLazyRoute,
     AuthLoginLazyRoute,
     AuthRegisterLazyRoute,
-  ]),
+  }),
   PasswordRoute,
-])
+})
 
 /* prettier-ignore-end */

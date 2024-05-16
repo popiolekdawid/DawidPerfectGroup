@@ -15,7 +15,7 @@ const albumPhotosQuery = (albumID: string) => {
       const { data } = await supabase.
         from('photos').
         select('path').
-        eq('event_id', albumID)
+        eq('event_id', albumID).order('upload_date', { ascending: false })
       if (!data) {
         return { photos: [] }
       }

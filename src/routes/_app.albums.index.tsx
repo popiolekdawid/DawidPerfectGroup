@@ -91,10 +91,13 @@ function AlbumsIndex() {
                 {previewPhotos.find(p => p.eventID === event.id) ?
                   <img className='aspect-square object-cover' src={previewPhotos.find(p => p.eventID === event.id)?.photo} /> : null}
               </CardContent>
-              <CardFooter>
-                <Link to={`/albums/$albumID`} params={{
+              <CardFooter className='flex flex-col gap-4'>
+                <Link className='bg-primary text-primary-foreground px-4 py-2' to={`/albums/$albumID`} params={{
                   albumID: event.id
                 }}>Zobacz {event.counted[0].count} zdjęć</Link>
+                {role === 'uploader' ? <Link className='bg-secondary text-secondary-foreground px-4 py-2' to={`/albums/edit/$albumID`} params={{
+                  albumID: event.id
+                }} >Dodaj kolejne zdjęcia</Link> : null}
               </CardFooter>
             </Card>
           </li>
