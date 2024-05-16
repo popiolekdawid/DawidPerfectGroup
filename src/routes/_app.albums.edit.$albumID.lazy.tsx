@@ -7,7 +7,6 @@ import Polish from '@uppy/locales/lib/pl_PL'
 import Tus from '@uppy/tus';
 import '@uppy/core/dist/style.min.css';
 import '@uppy/dashboard/dist/style.min.css';
-import { nanoid } from 'nanoid'
 import { useToast } from '@/components/ui/use-toast'
 import Compressor from '@uppy/compressor';
 import { bucket } from '@/lib/bucket'
