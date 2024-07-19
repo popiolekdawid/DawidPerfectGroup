@@ -38,13 +38,14 @@ function RegisterPage() {
       }
     })
     if (error) {
-      setError("root", { type: "manual", message: "Coś poszło nie tak" })
+      console.error("Registration error:", error.message); // Log the specific error message
+      setError("root", { type: "manual", message: "Coś poszło nie tak" });
       toast({
         title: "Błąd rejestracji",
         description: "Sprawdź poprawność danych",
         className: 'bg-red-300 text-white'
-      })
-      return
+      });
+      return;
     }
     await navigate({ to: '/confirmation' })
 
