@@ -16,7 +16,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as PasswordImport } from './routes/password'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as AppImport } from './routes/_app'
-import { Route as AppActivateUsersImport } from './routes/_app.activate-users'
+import { Route as AppActivateProfilesImport } from './routes/_app.activate-profiles'
 import { Route as AppAccountImport } from './routes/_app.account'
 import { Route as AppAlbumsIndexImport } from './routes/_app.albums.index'
 import { Route as AppAlbumsAlbumIDImport } from './routes/_app.albums.$albumID'
@@ -83,8 +83,8 @@ const AuthActivationLazyRoute = AuthActivationLazyImport.update({
   import('./routes/_auth.activation.lazy').then((d) => d.Route),
 )
 
-const AppActivateUsersRoute = AppActivateUsersImport.update({
-  path: '/activate-users',
+const AppActivateProfilesRoute = AppActivateProfilesImport.update({
+  path: '/activate-profiles',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -166,11 +166,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountImport
       parentRoute: typeof AppImport
     }
-    '/_app/activate-users': {
-      id: '/_app/activate-users'
-      path: '/activate-users'
-      fullPath: '/activate-users'
-      preLoaderRoute: typeof AppActivateUsersImport
+    '/_app/activate-profiles': {
+      id: '/_app/activate-profiles'
+      path: '/activate-profiles'
+      fullPath: '/activate-profiles'
+      preLoaderRoute: typeof AppActivateProfilesImport
       parentRoute: typeof AppImport
     }
     '/_auth/activation': {
@@ -252,7 +252,7 @@ export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   AppRoute: AppRoute.addChildren({
     AppAccountRoute: AppAccountRoute.addChildren({ AppAccountConfirmRoute }),
-    AppActivateUsersRoute,
+    AppActivateProfilesRoute,
     AppAlbumsAlbumIDRoute: AppAlbumsAlbumIDRoute.addChildren({
       AppAlbumsAlbumIDPhotoIDRoute,
     }),

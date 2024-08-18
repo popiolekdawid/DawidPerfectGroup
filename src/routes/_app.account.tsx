@@ -17,7 +17,7 @@ const profileQuery = () => {
       }
       const { data: profileData, error } = await supabase
         .from('profiles')
-        .select('id, role, active,name,surname')
+        .select('id, role, active, name, surname')
         .single();
       if (error) {
         console.log(error)
