@@ -1,12 +1,19 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import UserTable from '@/components/UserTable';
 import { globalStore } from '@/lib/global.store';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
+import ProfilesTable from '@/components/ProfilesTable'
 
-const inactiveProfilesQuery = () => {
+export interface Profile {
+  id: string
+  user_id: string
+  created_at: string
+  active: boolean
+  role: string
+  name: string
+  surname: string
+}
+
+const profileQuery = () => {
   return queryOptions({
     queryKey: ['profile'],
     queryFn: async () => {
@@ -17,7 +24,6 @@ const inactiveProfilesQuery = () => {
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('id, role, active, name, surname')
-        .eq('active', false)
       if (error) {
         console.log(error)
       }
@@ -28,18 +34,23 @@ const inactiveProfilesQuery = () => {
 
 export const Route = createFileRoute('/_app/admin')({
   loader: async ({ context }) => {
-    return context.queryClient.ensureQueryData(inactiveProfilesQuery())
+    return context.queryClient.ensureQueryData(profileQuery())
   },
   component: Admin
 });
 
 function Admin() {
-  const query = useSuspenseQuery(inactiveProfilesQuery())
-  const data = query.data;
+  const query = useSuspenseQuery(profileQuery())
+  const profiles: Profile[] | null = query.data as Profile [] | null
 
-  return (
-      <div className="max-md border rounded-md p-8">
-        <UserTable />
+
+  if (profiles !== null) {
+    return (
+      <div className='max-md border rounded-md p-8'>
+        <ProfilesTable profiles={profiles} />
       </div>
-  )
+    )
+  } else {
+    <p>Nie znaleziono uzytkownikow</p>
+  }
 }
