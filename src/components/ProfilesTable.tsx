@@ -21,6 +21,15 @@ import {
   } from "@/components/ui/dropdown-menu";
   import { Button } from "@/components/ui/button";
   import { Profile } from "@/routes/_app.admin";
+  import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "@/components/ui/dialog"
+  
   
   export default function ProfilesTable({ profiles }: { profiles: Profile[] }) {
     const activeprofiles = profiles.filter((profile) => profile.active).length;
@@ -64,7 +73,19 @@ import {
             <DropdownMenuContent align="end">
             <DropdownMenuItem disabled>Edytuj</DropdownMenuItem>
             {!profile.active && (
-              <DropdownMenuItem>Zmień status</DropdownMenuItem>
+              <Dialog>
+                <DialogTrigger className="px-2 py-1.5 text-sm">Aktywuj konto</DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Czy chcesz aktywować profil?</DialogTitle>
+                    <DialogDescription>
+                      <Button className="mt-4">
+                        Aktywuj konto użytkownika
+                      </Button>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
             )}
             <DropdownMenuItem disabled>Usuń</DropdownMenuItem>
             </DropdownMenuContent>
