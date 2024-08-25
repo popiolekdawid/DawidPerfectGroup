@@ -52,10 +52,9 @@ function Admin() {
       throw new Error('No supabase');
     }
     try {
-      console.log('Current status:', currentStatus);
       const { error } = await supabase
         .from('profiles')
-        .update({ active: true })
+        .update({ active: !currentStatus })
         .eq('id', userId);
       if (error) {
         console.error('Error updating user status:', error);
