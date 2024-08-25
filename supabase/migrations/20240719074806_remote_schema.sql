@@ -132,8 +132,6 @@ CREATE POLICY "Enable delete for users based on user_id" ON "public"."profiles" 
 
 CREATE POLICY "Enable insert for authenticated users only" ON "public"."profiles" FOR INSERT TO "authenticated" WITH CHECK (("user_id" = "auth"."uid"()));
 
-CREATE POLICY "Enable read access only for own " ON "public"."profiles" FOR SELECT USING (("auth"."uid"() = "user_id"));
-
 CREATE POLICY "Enable update for users based on email" ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "user_id"));
 
 ALTER TABLE "public"."events" ENABLE ROW LEVEL SECURITY;
