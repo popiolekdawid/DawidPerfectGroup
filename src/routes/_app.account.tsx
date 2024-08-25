@@ -27,7 +27,6 @@ const profileQuery = () => {
   })
 }
 
-
 export const Route = createFileRoute('/_app/account')({
   loader: async ({ context }) => {
     return context.queryClient.ensureQueryData(profileQuery())
@@ -45,6 +44,7 @@ function AccountPage() {
   const data = query.data
   const auth = globalStore(state => state.auth)
   const router = useRouter()
+  
   const updateProfile = useCallback(async (data: FormInputsAccount) => {
     const userId = auth.session?.user.id
     if (!userId) {
