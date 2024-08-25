@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { globalStore } from '@/lib/global.store';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import ProfilesTable from '@/components/ProfilesTable';
+import ProfilesTable from '@/components/admin/ProfilesTable';
 
 export interface Profile {
   id: string
