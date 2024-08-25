@@ -59,7 +59,6 @@ function Admin() {
       if (error) {
         console.error('Error updating user status:', error);
       } else {
-        console.log('User status updated successfully');
         query.refetch();
       }
     } catch (error) {
