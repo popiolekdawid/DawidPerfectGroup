@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { globalStore } from '@/lib/global.store';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import ProfilesTable from '@/components/admin/ProfilesTable';
 
 export interface Profile {
@@ -34,6 +34,15 @@ const profileQuery = () => {
 }
 
 export const Route = createFileRoute('/_app/admin')({
+  beforeLoad: async () => {
+    const supabase = globalStore.getState().auth.supabase
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user || !user.role || user.role !== 'admin') {
+      throw redirect({
+        to: '/account',
+      })
+    }
+  },
   loader: async ({ context }) => {
     return context.queryClient.ensureQueryData(profileQuery())
   },
