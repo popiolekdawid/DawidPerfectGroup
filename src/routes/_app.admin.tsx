@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { globalStore } from '@/lib/global.store';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import ProfilesTable from '@/components/admin/ProfilesTable';
 
 export interface Profile {
@@ -34,6 +34,16 @@ const profileQuery = () => {
 }
 
 export const Route = createFileRoute('/_app/admin')({
+  beforeLoad: async ({ context }) => {
+    if (!context.auth.session) throw redirect({ to: '/login' })
+    if (!context.auth.supabase) return
+
+    const { data } = await context.auth.supabase.from("profiles")
+      .select("role")
+      .eq("user_id", context.auth.session.user.id).single()
+
+    if (data?.role !== "admin") throw redirect({ to: '/permissions' })
+  },
   loader: async ({ context }) => {
     return context.queryClient.ensureQueryData(profileQuery())
   },

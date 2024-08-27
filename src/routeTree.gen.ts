@@ -30,6 +30,7 @@ const AuthRegisterLazyImport = createFileRoute('/_auth/register')()
 const AuthLoginLazyImport = createFileRoute('/_auth/login')()
 const AuthConfirmationLazyImport = createFileRoute('/_auth/confirmation')()
 const AuthActivationLazyImport = createFileRoute('/_auth/activation')()
+const AppPermissionsLazyImport = createFileRoute('/_app/permissions')()
 const AppAlbumsUploadLazyImport = createFileRoute('/_app/albums/upload')()
 const AppAlbumsEditAlbumIDLazyImport = createFileRoute(
   '/_app/albums/edit/$albumID',
@@ -81,6 +82,13 @@ const AuthActivationLazyRoute = AuthActivationLazyImport.update({
   getParentRoute: () => AuthRoute,
 } as any).lazy(() =>
   import('./routes/_auth.activation.lazy').then((d) => d.Route),
+)
+
+const AppPermissionsLazyRoute = AppPermissionsLazyImport.update({
+  path: '/permissions',
+  getParentRoute: () => AppRoute,
+} as any).lazy(() =>
+  import('./routes/_app.permissions.lazy').then((d) => d.Route),
 )
 
 const AppAdminRoute = AppAdminImport.update({
@@ -173,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminImport
       parentRoute: typeof AppImport
     }
+    '/_app/permissions': {
+      id: '/_app/permissions'
+      path: '/permissions'
+      fullPath: '/permissions'
+      preLoaderRoute: typeof AppPermissionsLazyImport
+      parentRoute: typeof AppImport
+    }
     '/_auth/activation': {
       id: '/_auth/activation'
       path: '/activation'
@@ -253,6 +268,7 @@ export const routeTree = rootRoute.addChildren({
   AppRoute: AppRoute.addChildren({
     AppAccountRoute: AppAccountRoute.addChildren({ AppAccountConfirmRoute }),
     AppAdminRoute,
+    AppPermissionsLazyRoute,
     AppAlbumsAlbumIDRoute: AppAlbumsAlbumIDRoute.addChildren({
       AppAlbumsAlbumIDPhotoIDRoute,
     }),
