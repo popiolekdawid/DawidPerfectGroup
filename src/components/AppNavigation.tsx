@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Badge, Camera, Settings, ShoppingCart, UserRound } from 'lucide-react'
+import { Badge, Camera, Settings, ShoppingCart, UserRound, UserRoundCog } from 'lucide-react'
 
 function ActiveBadge() {
   return (
@@ -12,7 +12,8 @@ const pages: [string, string, JSX.Element, boolean][] = [
   ['/albums', "Albumy", <Camera className="h-5 w-5" />, true],
   ['/orders', "Zamówienia", <ShoppingCart className="h-5 w-5" />, false],
   ['/setting', "Ustawienia", <Settings className="h-5 w-5" />, false],
-  ['/account', "Moje dane", <UserRound className="h-5 w-5" />, true]
+  ['/account', "Moje dane", <UserRound className="h-5 w-5" />, true],
+  ['/admin', "Administrator", <UserRoundCog className="h-5 w-5" />, true]
 ] as const
 
 

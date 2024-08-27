@@ -140,7 +140,7 @@ ALTER TABLE "public"."events" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."photos" ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
