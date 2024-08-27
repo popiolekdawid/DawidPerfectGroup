@@ -40,8 +40,9 @@ export const Route = createFileRoute('/_app/admin')({
 
     const { data } = await context.auth.supabase.from("profiles")
       .select("role")
-      .eq("user_id", context.auth.session.user.id).single()
-
+      .eq("user_id", context.auth.session.user.id)
+      .single()
+    
     if (data?.role !== "admin") throw redirect({ to: '/permissions' })
   },
   loader: async ({ context }) => {
